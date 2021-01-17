@@ -1,4 +1,5 @@
 import React from 'react';
+import {auth, db} from '../firebase';
 
 const Login = () => {
     const [email, setEmail] = React.useState('');
@@ -21,7 +22,32 @@ const Login = () => {
         }
 
         setError(null);
+
+        if(esRegistro) {
+            registrar();
+        }
     }
+
+    const registrar = React.useCallback(async() => {
+        auth.createUserWithEmailAndPassword(email, password)
+        .then((user) => {
+            console.log(user);
+            db.collection('usuarios').doc(user.user.uid).set({
+                email : user.user.email,
+                uid : user.user.uid
+            })
+            .then(function() {
+                console.log("Document successfully written!");
+            })
+            .catch(function(error) {
+                setError(error);
+            });
+        })
+        .catch((error) => {
+          setError(error.message);
+        }); 
+
+    }, [email, password])
     return (
         <div className="mt-5">
             <h3 className="text-center">
@@ -54,13 +80,13 @@ const Login = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         value={password}
                         />
-                        <button className="btn btn-dark btn-lg btn-block" type="submit">
+                        <button className="btn btn-dark btn-lg d-block" type="submit">
                             {
                                 esRegistro ? 'Registrarse' : 'Acceder'
                             }
                         </button>
                         <button 
-                        className="btn btn-info btn-sm btn-block"
+                        className="btn btn-info btn-sm d-block mt-2"
                         onClick={() => setEsRegistro(!esRegistro)}
                         type="button"
                         >
