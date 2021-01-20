@@ -1,7 +1,8 @@
 import React from 'react';
 import {auth, db} from '../firebase';
+import {withRouter} from 'react-router-dom';
 
-const Login = () => {
+const Login = (props) => {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [error, setError] = React.useState(null);
@@ -26,7 +27,24 @@ const Login = () => {
         if(esRegistro) {
             registrar();
         }
+        else {
+            login();
+        }
     }
+
+    const login = React.useCallback(() => {
+        auth.signInWithEmailAndPassword(email, password)
+        .then((user) => {
+            console.log(user);
+            setEmail('');
+            setPassword('');
+            setError(null);
+            props.history.push('/admin');
+        })
+        .catch((error) => {
+            setError(error.message);
+        });
+    }, [email, password, props.history]);
 
     const registrar = React.useCallback(async() => {
         auth.createUserWithEmailAndPassword(email, password)
@@ -38,6 +56,10 @@ const Login = () => {
             })
             .then(function() {
                 console.log("Document successfully written!");
+                setEmail('');
+                setPassword('');
+                setError(null);
+                props.history.push('/admin');
             })
             .catch(function(error) {
                 setError(error);
@@ -47,7 +69,7 @@ const Login = () => {
           setError(error.message);
         }); 
 
-    }, [email, password])
+    }, [email, password, props.history])
     return (
         <div className="mt-5">
             <h3 className="text-center">
@@ -101,4 +123,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default withRouter(Login);
