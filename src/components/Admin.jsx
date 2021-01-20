@@ -11,13 +11,18 @@ const Admin = (props) => {
             console.log('Existe usuario');
         } else {
             console.log('No existe el usuario');
-            props.history.push('/admin');
+            props.history.push('/login');
         }         
     }, [props.history]);
 
     return (
         <div>
             <h2>Ruta protegida</h2>
+            {
+                user !== null && (
+                    <h3>{user.email}</h3>
+                )
+             }
         </div>
     )
 }
